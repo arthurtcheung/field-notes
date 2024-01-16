@@ -9,4 +9,9 @@ router.post('/register', userController.registerUser, (req, res) => {
   return res.status(200).json(res.locals.userId);
 });
 
+// Handle POST req to '/api/user/login' endpoint
+router.post('/login', userController.loginUser, (req, res) => {
+  return res.status(200).json(res.locals.userId);
+});
+
 module.exports = router;

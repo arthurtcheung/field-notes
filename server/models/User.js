@@ -40,7 +40,7 @@ UserSchema.pre('save', function (next) {
   const user = this;
   bcrypt.hash(user.password, saltFactor, (err, hashedPassword) => {
     if (err) {
-      console.error(`> Error hashing password: ${err}`); // CL
+      console.log(`> Error hashing password: ${err}`); // CL
       return next(err);
     }
     user.password = hashedPassword; // overwrite user password property w/ hashed password
