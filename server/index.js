@@ -29,7 +29,7 @@ app.use((err, req, res, next) => {
     status: 500,
     message: { err: 'An error occured' },
   };
-
+  console.log(`${defaultErr.log} -> ${defaultErr.message.err}`); // CL
   const errorObj = Object.assign(defaultErr, err); // overwrite properties of defaultErr if err is provided by middleware
   return res.status(errorObj.status).json(errorObj.message);
 });

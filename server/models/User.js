@@ -16,20 +16,25 @@ const UserSchema = new Schema(
     username: {
       type: String,
       require: true,
-      min: 4,
-      max: 14,
+      minLength: 4,
+      maxLength: 14,
       unique: true,
     },
     email: {
       type: String,
       require: true,
-      max: 50,
+      maxLength: 50,
       unique: true,
     },
     password: {
       type: String,
       require: true,
-      min: 8,
+      validate: {
+        validator: function (password) {
+          return password.length >= 8; // check if pw meets min length required
+        },
+        message: 'Password must be at least 8 characters long',
+      },
     },
   },
   { timestamps: true }

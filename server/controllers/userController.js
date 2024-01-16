@@ -1,5 +1,7 @@
-const User = require('../models/User.js');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
+
+const User = require('../models/User.js');
 
 const userController = {};
 
@@ -13,7 +15,7 @@ userController.registerUser = async (req, res, next) => {
     // Handle missing fields
     if (!username || !email || !password) {
       const missingFieldsErr = {
-        log: '> Express error handler caught userController.registerUser Error',
+        log: '> Express error handler caught userController.registerUser error',
         status: 400,
         message: { err: 'Missing required fields' },
       };
@@ -34,8 +36,37 @@ userController.registerUser = async (req, res, next) => {
     console.log('- New user registered: ', registeredUser); // CL
     return next();
   } catch (err) {
-    // Invoke global error handler
-    return next('> Error in userController.registerUser: ', err);
+    // Mongoose validation error handler
+    if (err instanceof mongoose.Error.ValidationError) {
+      // Username or password error?
+      if (err.errors.username !== undefined) {
+        // If username error...
+        const usernameLengthErr = {
+          log: '> Express error handler caught userController.registerUser error',
+          status: 400,
+          message: { err: err.errors.username.message },
+        };
+        console.log(
+          `${usernameLengthErr.log} -> ${usernameLengthErr.message.err}`
+        ); // CL
+        return next(usernameLengthErr);
+      } else if (err.errors.password !== undefined) {
+        // If password error...
+        const shortPasswordErr = {
+          log: '> Express error handler caught userController.registerUser error',
+          status: 400,
+          message: { err: err.errors.password.message },
+        };
+        console.log(
+          `${shortPasswordErr.log} -> ${shortPasswordErr.message.err}`
+        ); // CL
+        return next(shortPasswordErr);
+      } else {
+        // If any other type of error...
+        // Invoke global error handler
+        return next('> Error in userController.registerUser: ', err);
+      }
+    }
   }
 };
 
@@ -49,7 +80,7 @@ userController.loginUser = async (req, res, next) => {
     // Handle missing field
     if (!username || !password) {
       const missingFieldsErr = {
-        log: '> Express error handler caught userController.registerUser Error',
+        log: '> Express error handler caught userController.registerUser error',
         status: 400,
         message: { err: 'Missing required fields' },
       };
@@ -62,7 +93,7 @@ userController.loginUser = async (req, res, next) => {
     if (foundUser) console.log('- User found in db: ', foundUser._id);
     else {
       const userDneErr = {
-        log: '> Express error handler caught userController.loginUser Error',
+        log: '> Express error handler caught userController.loginUser error',
         status: 400,
         message: { err: 'Username does not exist in db' },
       };
@@ -78,7 +109,7 @@ userController.loginUser = async (req, res, next) => {
       return next();
     } else {
       const invalidPasswordErr = {
-        log: '> Express error handler caught userController.loginUser Error',
+        log: '> Express error handler caught userController.loginUser error',
         status: 400,
         message: { err: 'Invalid password entered' },
       };
